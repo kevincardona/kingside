@@ -1,0 +1,4 @@
+# Normalize EOL for all files that Git considers text files.
+* text=auto eol=lf
+Chess.xcframework/** filter=lfs diff=lfs merge=lfs -text
+MoltenVK.xcframework/** filter=lfs diff=lfs merge=lfs -text

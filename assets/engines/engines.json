@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "_comment": "Catalogue of chess engines the player can run. Each entry runs on a binary COMPILED INTO the app (Stockfish). 'net' (a .nnue file) and 'uci' (option overrides) are DATA and may be added/downloaded as packs without an app update - this is what keeps 'install engines from inside the app' App Store-compliant (Guideline 2.5.2 bans downloading executable code). catalog_url: set to a hosted catalog to serve packs remotely; leave empty to serve the BUNDLED catalog (assets/engines/catalog.json), whose packs download nets straight from public net servers.",
+  "catalog_url": "",
+  "engines": [
+    {
+      "id": "stockfish18",
+      "name": "Stockfish 18",
+      "engine": "stockfish",
+      "author": "The Stockfish team · GPLv3",
+      "tagline": "World-class strength, fully on-device.",
+      "description": "A full Stockfish 18 build with its embedded NNUE evaluation, running entirely offline on your device. Powers every bot tier from Beginner to Max Stockfish.",
+      "net": "",
+      "uci": {}
+    }
+  ]
+}

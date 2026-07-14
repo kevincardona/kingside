@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<!--
+  Kingside website — served by GitHub Pages from the /docs folder.
+
+  BEFORE PUBLISHING, find-and-replace these placeholders across docs/*.html:
+    Kingside        e.g. "Kingside"
+    {{DEVELOPER_NAME}}  your name or company (App Store seller)
+    {{SUPPORT_EMAIL}}   the email you'll answer support at
+    {{APP_STORE_URL}}   the App Store listing URL (or leave the button hidden)
+
+  To enable GitHub Pages: repo Settings → Pages → Build from branch →
+  branch "master" (or your default), folder "/docs". The site is then at
+  https://kevincardona.github.io/chess/ and the engine catalog at
+  https://kevincardona.github.io/chess/engines/catalog.json (already wired in
+  assets/engines/engines.json). The .nojekyll file makes Pages serve every file
+  verbatim (needed so the .nnue and .json catalog files download correctly).
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kingside — Offline Chess</title>
+  <meta name="description" content="Kingside is a beautiful single-player chess app powered by Stockfish, running entirely on your device. No account, no internet required." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site">
+    <div class="wrap">
+      <span class="brand"><span class="mark"></span>Kingside</span>
+      <nav class="site">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="support.html">Support</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="logo" aria-hidden="true">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+          <path d="M20 44h16l-2-7H22l-2 7z" fill="#f0f1ec"/>
+          <path d="M24 37c-3-3-4-7-2-11 1-2 3-3 3-5a4 4 0 1 1 6 0c0 2 2 3 3 5 2 4 1 8-2 11H24z" fill="#f0f1ec"/>
+          <rect x="18" y="44" width="20" height="4" rx="1.5" fill="#7fa650"/>
+        </svg>
+      </div>
+      <h1>Kingside</h1>
+      <p class="tagline">Beautiful single-player chess powered by Stockfish — fully on your device, online never required.</p>
+      <p>
+        <a class="btn" href="{{APP_STORE_URL}}">Download on the App Store</a>
+        <a class="btn ghost" href="support.html">Support</a>
+      </p>
+      <div class="chips">
+        <span class="chip">Real Stockfish 18</span>
+        <span class="chip">Beginner → 3200</span>
+        <span class="chip">Accurate game reviews</span>
+        <span class="chip">Voice moves</span>
+        <span class="chip">No account</span>
+        <span class="chip">Works offline</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Why you'll like it</h2>
+      <div class="grid">
+        <div class="feature">
+          <div class="ico">♟️</div>
+          <h3>Genuine Stockfish</h3>
+          <p>Every bot is the real Stockfish 18 engine, compiled into the app and running natively on your device — not a watered-down imitation.</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🎯</div>
+          <h3>Calibrated opponents</h3>
+          <p>Pick a rating from Beginner to Max. Bots are tuned to play near their label, so the rating you earn actually means something.</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🔍</div>
+          <h3>Accurate game reviews</h3>
+          <p>After each game, get an engine-backed review: accuracy, blunders, and the best moves you missed — analysed move by move.</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🎙️</div>
+          <h3>Voice moves</h3>
+          <p>Say your move out loud. On-device speech recognition turns it into a legal move — nothing is recorded or sent anywhere.</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🧩</div>
+          <h3>Puzzles & progress</h3>
+          <p>Daily puzzles, a rating that follows you, streaks and achievements — all stored privately on your device.</p>
+        </div>
+        <div class="feature">
+          <div class="ico">📦</div>
+          <h3>Downloadable engines</h3>
+          <p>Optionally install extra neural-net evaluation packs to try different engine personalities — data only, fully offline once installed.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Private by design</h2>
+      <div class="callout">
+        Kingside doesn't collect, transmit, or sell your personal data. Your games,
+        rating, and settings live only on your device. Read the full
+        <a href="privacy.html">Privacy Policy</a>.
+      </div>
+    </section>
+  </main>
+
+  <footer class="site">
+    <div class="wrap row">
+      <span>© <span id="year">2026</span> {{DEVELOPER_NAME}}. Stockfish is GPLv3, by the Stockfish team.</span>
+      <span class="links">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="support.html">Support</a>
+      </span>
+    </div>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

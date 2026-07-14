@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Privacy Policy — Kingside</title>
+  <meta name="description" content="Kingside privacy policy. A single-player, offline chess app that does not collect, transmit, or sell your personal data." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site">
+    <div class="wrap">
+      <a class="brand" href="index.html" style="color:inherit"><span class="mark"></span>Kingside</a>
+      <nav class="site">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="support.html">Support</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap content">
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: 26 June 2026</p>
+
+    <div class="callout">
+      <strong>The short version:</strong> Kingside is a single-player, offline chess
+      app. It does not collect, transmit, or sell your personal data. Everything you do —
+      your games, rating, puzzle progress, and settings — is stored only on your device.
+    </div>
+
+    <h2>What is stored on your device</h2>
+    <ul>
+      <li>Your rating, win/loss record, achievements, day-streak, saved and completed
+        games, and app settings. This never leaves your device and is removed if you
+        delete the app or use <strong>Settings → Reset App Data</strong>.</li>
+    </ul>
+
+    <h2>Microphone &amp; speech recognition (optional)</h2>
+    <ul>
+      <li>If you use <strong>voice moves</strong>, the app uses your device's microphone
+        and Apple's on-device speech recognition to turn what you say into a chess move.
+        Audio is processed on-device for that purpose only; it is <strong>not stored and
+        not transmitted</strong>. You can decline the permission and play normally.</li>
+    </ul>
+
+    <h2>Engine packs (optional)</h2>
+    <ul>
+      <li>If you install an optional engine pack, the app downloads <strong>data only</strong>
+        (configuration and neural-net evaluation files) to run on the engine already
+        included in the app. No personal data is sent to download a pack, and packs work
+        fully offline once installed.</li>
+    </ul>
+
+    <h2>Children</h2>
+    <ul>
+      <li>The app is suitable for ages 4+. It does not knowingly collect any personal
+        information from anyone, including children.</li>
+    </ul>
+
+    <h2>Changes</h2>
+    <ul>
+      <li>If this policy changes, the "last updated" date above will change.</li>
+    </ul>
+
+    <h2>Contact</h2>
+    <ul>
+      <li>Developer: {{DEVELOPER_NAME}}</li>
+      <li>Email: <a href="mailto:{{SUPPORT_EMAIL}}">{{SUPPORT_EMAIL}}</a></li>
+    </ul>
+  </main>
+
+  <footer class="site">
+    <div class="wrap row">
+      <span>© <span id="year">2026</span> {{DEVELOPER_NAME}}.</span>
+      <span class="links">
+        <a href="index.html">Home</a>
+        <a href="terms.html">Terms</a>
+        <a href="support.html">Support</a>
+      </span>
+    </div>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

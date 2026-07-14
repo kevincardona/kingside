@@ -1,0 +1,37 @@
+rules_version = '2';
+// Firestore security rules for the chess matches collection.
+// Paste into Firebase Console → Firestore Database → Rules → Publish.
+//
+// Model: anonymous-auth players. A match doc is created by its White player,
+// joined by one Black player while status == "open", and afterwards only
+// writable by the two seated players.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /matches/{code} {
+      // Anyone signed in can read (needed for join-by-code and quick match).
+      allow read: if request.auth != null;
+
+      // Create: you must seat yourself as White in your own doc.
+      allow create: if request.auth != null
+        && request.resource.data.white_id == request.auth.uid
+        && request.resource.data.status == "open"
+        && request.resource.data.black_id == "";
+
+      // Update: either you are taking the open Black seat...
+      allow update: if request.auth != null && (
+        (
+          resource.data.status == "open"
+          && resource.data.black_id == ""
+          && request.resource.data.black_id == request.auth.uid
+          && request.resource.data.white_id == resource.data.white_id
+        )
+        // ...or you are one of the two seated players.
+        || request.auth.uid in [resource.data.white_id, resource.data.black_id]
+      );
+
+      // No client-side deletes; stale docs can be cleaned with a TTL policy
+      // (Firestore console → TTL on the "updated" field) — optional.
+      allow delete: if false;
+    }
+  }
+}

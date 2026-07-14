@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "_comment": "BUNDLED engine-pack catalog. EngineRegistry.fetch_catalog() serves this list when no remote catalog_url is configured, so 'Add engines' works with zero hosting. Every pack is DATA ONLY (a .nnue evaluation network + optional UCI overrides) executed by the Stockfish binary already compiled into the app - App Store Guideline 2.5.2 compliant, no executable code is ever downloaded. net_url points straight at Stockfish's own public net server; size_bytes + sha256 are validated before a net is installed. ONLY list nets verified to load in THIS build (arch 22528x128x15x32x1, see gdextension/src/stockfish_smoke.cpp: ./stockfish_smoke <net.nnue> must print bestmove).",
+  "packs": [
+    {
+      "id": "sf-classic-net",
+      "name": "Classic Net",
+      "engine": "stockfish",
+      "author": "The Stockfish team · GPLv3",
+      "tagline": "Stockfish's previous-generation network.",
+      "description": "Stockfish's previous-generation net — a subtly different positional style. ~3.3 MB, downloads once then works fully offline.",
+      "net": "nn-baff1ede1f90.nnue",
+      "net_url": "https://data.stockfishchess.org/nn/nn-baff1ede1f90.nnue",
+      "size_bytes": 3480122,
+      "sha256": "baff1ede1f90c1dd1b4f772f1eff29848821801e8186345da7f0eb4121bd6f63",
+      "uci": {}
+    }
+  ]
+}

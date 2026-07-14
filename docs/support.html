@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Support — Kingside</title>
+  <meta name="description" content="Support and FAQ for Kingside." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site">
+    <div class="wrap">
+      <a class="brand" href="index.html" style="color:inherit"><span class="mark"></span>Kingside</a>
+      <nav class="site">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="support.html">Support</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap content">
+    <h1>Support</h1>
+    <p class="updated">We're happy to help.</p>
+
+    <div class="callout">
+      Need a hand or found a bug? Email
+      <a href="mailto:{{SUPPORT_EMAIL}}?subject=Kingside%20support">{{SUPPORT_EMAIL}}</a>
+      and we'll get back to you. Including your device model and iOS version helps us
+      track things down faster.
+    </div>
+
+    <h2>Frequently asked</h2>
+
+    <h2 style="border:0;padding-top:8px;font-size:18px">Is an internet connection required?</h2>
+    <p>No. Kingside plays, reviews games, and saves your progress entirely offline. The
+      only optional time it uses the network is if you choose to download an extra engine pack.</p>
+
+    <h2 style="border:0;padding-top:8px;font-size:18px">Is this really Stockfish?</h2>
+    <p>Yes — the real Stockfish 18 engine is compiled into the app and runs natively on
+      your device. The difficulty levels adjust its strength, not a different, weaker engine.</p>
+
+    <h2 style="border:0;padding-top:8px;font-size:18px">How do voice moves work?</h2>
+    <p>Voice moves use your device's microphone and Apple's on-device speech recognition.
+      Audio is processed locally to recognise your move and is never recorded or sent
+      anywhere. You can play without granting microphone access.</p>
+
+    <h2 style="border:0;padding-top:8px;font-size:18px">How is my rating calculated?</h2>
+    <p>Your rating updates after each rated game using a Glicko-style system, factoring in
+      the opponent's strength and how recently you've played. It's a fun, reasonably
+      accurate estimate of your level versus the bots.</p>
+
+    <h2 style="border:0;padding-top:8px;font-size:18px">What are downloadable engines?</h2>
+    <p>Optional packs add a neural-net evaluation file (data, not a new program) that runs
+      on the built-in engine. They install from inside the app and work offline afterward.</p>
+
+    <h2 style="border:0;padding-top:8px;font-size:18px">How do I reset my data?</h2>
+    <p>Go to <strong>Settings → Reset App Data</strong> in the app. This clears your rating,
+      games, and settings on the device. Deleting the app also removes everything.</p>
+
+    <h2>Still stuck?</h2>
+    <p>Email <a href="mailto:{{SUPPORT_EMAIL}}">{{SUPPORT_EMAIL}}</a> — we read every message.</p>
+  </main>
+
+  <footer class="site">
+    <div class="wrap row">
+      <span>© <span id="year">2026</span> {{DEVELOPER_NAME}}.</span>
+      <span class="links">
+        <a href="index.html">Home</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </span>
+    </div>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

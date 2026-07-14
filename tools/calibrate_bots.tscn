@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cabghebaxyyq1"]
+
+[ext_resource type="Script" path="res://tools/calibrate_bots.gd" id="1_cal"]
+
+[node name="CalibrateBots" type="Node"]
+script = ExtResource("1_cal")

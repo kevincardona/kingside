@@ -1,0 +1,125 @@
+/* Kingside marketing + policy site — dark theme matching the app palette. */
+:root {
+  --bg: #111512;
+  --bg-grad-top: #182019;
+  --bg-grad-bot: #0c0f0c;
+  --card: #1e241f;
+  --card2: #293128;
+  --line: #353f32;
+  --accent: #7fa650;
+  --accent-lt: #95b96a;
+  --gold: #e9b949;
+  --text: #f0f1ec;
+  --dim: #b7bbaf;
+  --muted: #7e8478;
+  --radius: 16px;
+  --maxw: 860px;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: linear-gradient(var(--bg-grad-top), var(--bg) 55%, var(--bg-grad-bot)) fixed;
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent-lt); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 22px; }
+
+/* ── Header / nav ───────────────────────────── */
+header.site {
+  position: sticky; top: 0; z-index: 10;
+  backdrop-filter: blur(10px);
+  background: rgba(17, 21, 18, 0.82);
+  border-bottom: 1px solid var(--line);
+}
+header.site .wrap {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 60px;
+}
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--text); }
+.brand .mark {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dim, #5e7f3e));
+  display: inline-block;
+}
+nav.site a { color: var(--dim); margin-left: 20px; font-size: 15px; }
+nav.site a:hover { color: var(--text); text-decoration: none; }
+
+/* ── Hero ───────────────────────────────────── */
+.hero { text-align: center; padding: 64px 0 28px; }
+.hero .logo {
+  width: 92px; height: 92px; margin: 0 auto 22px; border-radius: 22px;
+  background: var(--card2);
+  display: grid; place-items: center;
+  border: 1px solid var(--line);
+  box-shadow: 0 8px 30px rgba(0,0,0,.45);
+}
+.hero h1 { font-size: 44px; margin: 0 0 10px; letter-spacing: -0.5px; }
+.hero p.tagline { font-size: 20px; color: var(--dim); margin: 0 auto 26px; max-width: 560px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 22px 0; }
+.chip {
+  background: var(--card); border: 1px solid var(--line);
+  color: var(--dim); border-radius: 999px; padding: 6px 14px; font-size: 14px;
+}
+
+.btn {
+  display: inline-block; background: var(--accent); color: #11150f;
+  font-weight: 700; padding: 13px 26px; border-radius: 12px; font-size: 16px;
+  border-bottom: 3px solid #5e7f3e;
+}
+.btn:hover { background: var(--accent-lt); text-decoration: none; }
+.btn.ghost { background: var(--card2); color: var(--text); border-bottom-color: var(--line); }
+
+/* ── Feature grid ───────────────────────────── */
+section { padding: 30px 0; }
+h2 { font-size: 26px; margin: 0 0 18px; }
+.grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;
+}
+.feature {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 20px;
+}
+.feature h3 { margin: 0 0 6px; font-size: 18px; }
+.feature p { margin: 0; color: var(--dim); font-size: 15px; }
+.feature .ico { font-size: 22px; }
+
+/* ── Policy / content pages ─────────────────── */
+.content { padding: 40px 0 20px; }
+.content h1 { font-size: 34px; margin: 0 0 6px; }
+.content .updated { color: var(--muted); font-size: 14px; margin-bottom: 26px; }
+.content h2 { font-size: 21px; margin: 30px 0 10px; border-top: 1px solid var(--line); padding-top: 22px; }
+.content h2:first-of-type { border-top: 0; padding-top: 0; }
+.content ul { padding-left: 20px; }
+.content li { margin: 6px 0; color: var(--dim); }
+.content p { color: var(--dim); }
+.content strong { color: var(--text); }
+.callout {
+  background: var(--card); border: 1px solid var(--line);
+  border-left: 3px solid var(--accent); border-radius: 10px;
+  padding: 14px 18px; margin: 18px 0; color: var(--text);
+}
+
+/* ── Footer ─────────────────────────────────── */
+footer.site {
+  border-top: 1px solid var(--line); margin-top: 40px; padding: 28px 0 50px;
+  color: var(--muted); font-size: 14px;
+}
+footer.site .links a { color: var(--dim); margin-right: 18px; }
+footer.site .row { display: flex; flex-wrap: wrap; gap: 10px 0; justify-content: space-between; align-items: center; }
+
+@media (max-width: 560px) {
+  .hero h1 { font-size: 34px; }
+  nav.site a { margin-left: 14px; }
+}

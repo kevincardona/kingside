@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "_comment": "Engine-pack catalog for Kingside, served via GitHub Pages and fetched by EngineRegistry.fetch_catalog(). Each pack is DATA ONLY — a neural-net (.nnue) evaluation file plus optional UCI option overrides — that runs on the Stockfish binary already compiled into the app. No executable code is ever downloaded, which is what keeps in-app engine installs compliant with App Store Guideline 2.5.2. To add a pack: drop a compatible .nnue into engines/nets/, then add an entry below with its size_bytes + sha256 (the app validates both before installing). See engines/README.md.",
+  "packs": [
+    {
+      "id": "stockfish18-official-net",
+      "name": "Stockfish 18 — Official Network",
+      "engine": "stockfish",
+      "author": "The Stockfish team · GPLv3",
+      "tagline": "The official NNUE evaluation network.",
+      "description": "Installs the official Stockfish 18 evaluation network as a downloadable data pack, run by the built-in engine. Works fully offline once installed.",
+      "net": "nn-37f18f62d772.nnue",
+      "net_url": "https://kevincardona.github.io/chess/engines/nets/nn-37f18f62d772.nnue",
+      "size_bytes": 3519630,
+      "sha256": "37f18f62d772f3107e1d6aaca3898c130c3c86f2ab63e6555fbbca20635a899d",
+      "uci": {}
+    }
+  ]
+}

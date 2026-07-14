@@ -1,0 +1,116 @@
+# Builds the Stockfish GDExtension for Linux / Windows / Android on GitHub
+# runners, then exports desktop binaries with native AI baked in.
+# Trigger: push a tag like v1.0.0, or run manually from the Actions tab.
+#
+# iOS/macOS app builds stay local (they need signing); their native libs are
+# committed in gdextension/bin/. The pinned refs below must match the local
+# checkouts in gdextension/ (see docs/DISTRIBUTION.md).
+
+name: build-release
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+env:
+  GODOT_VERSION: "4.6.3"
+  GODOT_CPP_REF: 3a7edf0ea34fac0623ef3013d60362e9d01654d2
+  STOCKFISH_REF: cb3d4ee9b47d0c5aae855b12379378ea1439675c
+
+jobs:
+  native-libs:
+    name: stockfish ${{ matrix.platform }}-${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { platform: linux,   arch: x86_64 }
+          - { platform: windows, arch: x86_64 }
+          - { platform: android, arch: arm64 }
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y scons cmake build-essential
+          if [ "${{ matrix.platform }}" = "windows" ]; then
+            sudo apt-get install -y mingw-w64
+          fi
+
+      - name: Install Android NDK
+        if: matrix.platform == 'android'
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;28.1.13356709" >/dev/null
+          echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/28.1.13356709" >> "$GITHUB_ENV"
+
+      - name: Fetch pinned godot-cpp and patched Stockfish
+        run: |
+          cd gdextension
+          rm -rf godot-cpp stockfish
+          git clone --no-checkout https://github.com/godotengine/godot-cpp.git
+          git -C godot-cpp checkout "$GODOT_CPP_REF"
+          git clone --no-checkout https://github.com/official-stockfish/Stockfish.git stockfish
+          git -C stockfish checkout "$STOCKFISH_REF"
+          git -C stockfish apply "$PWD/patches/stockfish-18-single-nnue.patch"
+          cp bin/nn-37f18f62d772.nnue stockfish/src/
+
+      - name: Build
+        run: ./gdextension/build_stockfish_extension.sh "${{ matrix.platform }}" "${{ matrix.arch }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lib-${{ matrix.platform }}-${{ matrix.arch }}
+          path: |
+            gdextension/bin/*chess_engine.${{ matrix.platform }}.*
+          if-no-files-found: error
+
+  export-desktop:
+    name: export ${{ matrix.preset }}
+    needs: native-libs
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { preset: Linux,   out: Chess-linux/Chess.x86_64 }
+          - { preset: Windows, out: Chess-windows/Chess.exe }
+          - { preset: macOS,   out: Chess-macos/Chess.zip }
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pull native libs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: lib-*
+          merge-multiple: true
+          path: gdextension/bin/
+
+      - name: Enable available libs in the manifest
+        run: python3 tools/sync_gdextension_manifest.py
+
+      - name: Install Godot + export templates
+        run: |
+          base="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable"
+          curl -sSL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip && mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          curl -sSL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          mkdir -p "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          unzip -q templates.tpz
+          mv templates/* "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/"
+
+      - name: Import project
+        run: ./godot --headless --path . --import || true
+
+      - name: Export
+        run: |
+          mkdir -p "dist/$(dirname '${{ matrix.out }}')"
+          ./godot --headless --path . --export-release "${{ matrix.preset }}" "$PWD/dist/${{ matrix.out }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chess-${{ matrix.preset }}
+          path: dist/
+          if-no-files-found: error

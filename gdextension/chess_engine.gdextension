@@ -1,0 +1,29 @@
+[configuration]
+entry_symbol = "chess_engine_library_init"
+compatibility_minimum = "4.5"
+reloadable = false
+android_aar_plugin = false
+
+; IMPORTANT: Godot's ConfigFile parser does NOT treat '#' as a comment — a '#'
+; line gets merged into the FOLLOWING key, corrupting it (this silently broke
+; iOS: 'ios.debug' was absorbed into the preceding comment block, so the loader
+; reported "No GDExtension library found for ios.arm64" and fell back to the
+; GDScript engine). Only ';' is a comment. Keep this section pure key = value.
+; iOS points at the whole .xcframework so Godot embeds + codesigns it as a
+; framework; pointing at the inner binary breaks dylib loading on device.
+
+[libraries]
+macos.editor = "res://gdextension/bin/libchess_engine.macos.editor.arm64.dylib"
+macos.debug = "res://gdextension/bin/libchess_engine.macos.template_debug.arm64.dylib"
+macos.release = "res://gdextension/bin/libchess_engine.macos.template_release.arm64.dylib"
+macos.editor.x86_64 = "res://gdextension/bin/libchess_engine.macos.editor.x86_64.dylib"
+macos.debug.x86_64 = "res://gdextension/bin/libchess_engine.macos.template_debug.x86_64.dylib"
+macos.release.x86_64 = "res://gdextension/bin/libchess_engine.macos.template_release.x86_64.dylib"
+ios.debug = "res://gdextension/bin/libchess_engine.ios.template_debug.xcframework"
+ios.release = "res://gdextension/bin/libchess_engine.ios.template_release.xcframework"
+android.editor.arm64 = "res://gdextension/bin/libchess_engine.android.editor.arm64.so"
+android.debug.arm64 = "res://gdextension/bin/libchess_engine.android.template_debug.arm64.so"
+android.release.arm64 = "res://gdextension/bin/libchess_engine.android.template_release.arm64.so"
+windows.editor.x86_64 = "res://gdextension/bin/chess_engine.windows.editor.x86_64.dll"
+windows.debug.x86_64 = "res://gdextension/bin/chess_engine.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "res://gdextension/bin/chess_engine.windows.template_release.x86_64.dll"

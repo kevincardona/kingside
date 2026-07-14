@@ -1,0 +1,65 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Kingside"
+config/description="Mobile chess with Stockfish AI and ELO progression"
+run/main_scene="res://scenes/Main.tscn"
+config/features=PackedStringArray("4.7", "Mobile")
+boot_splash/bg_color=Color(0.0666667, 0.0823529, 0.0705882, 1)
+boot_splash/show_image=false
+config/icon="res://assets/brand/app_icon_1024.png"
+
+[autoload]
+
+ChessLogic="*res://scripts/autoload/ChessLogic.gd"
+PlayerData="*res://scripts/autoload/PlayerData.gd"
+AIEngine="*res://scripts/autoload/AIEngine.gd"
+EngineRegistry="*res://scripts/autoload/EngineRegistry.gd"
+SoundManager="*res://scripts/autoload/SoundManager.gd"
+Haptics="*res://scripts/autoload/Haptics.gd"
+SpeechManager="*res://scripts/autoload/SpeechManager.gd"
+PuzzleManager="*res://scripts/autoload/PuzzleManager.gd"
+GameCenterManager="*res://scripts/autoload/GameCenterManager.gd"
+OnlineManager="*res://scripts/autoload/OnlineManager.gd"
+GameManager="*res://scripts/autoload/GameManager.gd"
+
+[display]
+
+window/size/viewport_width=430
+window/size/viewport_height=932
+window/size/initial_position_type=0
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=1
+
+[dotnet]
+
+project/assembly_name="Chess"
+
+[editor_plugins]
+
+enabled=PackedStringArray()
+
+[gdextension]
+
+paths=["res://gdextension/chess_engine.gdextension"]
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+rendering_device/driver.windows="d3d12"
+renderer/rendering_method="mobile"
+textures/vram_compression/import_etc2_astc=true
+environment/defaults/default_clear_color=Color(0.0666667, 0.0823529, 0.0705882, 1)

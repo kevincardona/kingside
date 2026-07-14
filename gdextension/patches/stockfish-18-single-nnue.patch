@@ -1,0 +1,133 @@
+diff --git a/src/evaluate.h b/src/evaluate.h
+index b4f54a3..a2ca13b 100644
+--- a/src/evaluate.h
++++ b/src/evaluate.h
+@@ -33,7 +33,7 @@ namespace Eval {
+ // for the build process (profile-build and fishtest) to work. Do not change the
+ // name of the macro or the location where this macro is defined, as it is used
+ // in the Makefile/Fishtest.
+-#define EvalFileDefaultNameBig "nn-c288c895ea92.nnue"
++#define EvalFileDefaultNameBig "nn-37f18f62d772.nnue"
+ #define EvalFileDefaultNameSmall "nn-37f18f62d772.nnue"
+ 
+ namespace NNUE {
+diff --git a/src/nnue/network.cpp b/src/nnue/network.cpp
+index d1f2b14..e895e46 100644
+--- a/src/nnue/network.cpp
++++ b/src/nnue/network.cpp
+@@ -22,6 +22,7 @@
+ #include <fstream>
+ #include <iostream>
+ #include <optional>
++#include <stdexcept>
+ #include <type_traits>
+ #include <vector>
+ 
+@@ -215,7 +216,7 @@ void Network<Arch, Transformer>::verify(std::string
+             f(msg);
+         }
+ 
+-        exit(EXIT_FAILURE);
++        throw std::runtime_error("Stockfish NNUE network was not loaded: " + evalfilePath);
+     }
+ 
+     if (f)
+@@ -410,7 +411,9 @@ bool Network<Arch, Transformer>::write_parameters(std::ostream&      stream,
+ template class Network<NetworkArchitecture<TransformedFeatureDimensionsBig, L2Big, L3Big>,
+                        FeatureTransformer<TransformedFeatureDimensionsBig>>;
+ 
++#if TransformedFeatureDimensionsSmall != TransformedFeatureDimensionsBig
+ template class Network<NetworkArchitecture<TransformedFeatureDimensionsSmall, L2Small, L3Small>,
+                        FeatureTransformer<TransformedFeatureDimensionsSmall>>;
++#endif
+ 
+ }  // namespace Stockfish::Eval::NNUE
+diff --git a/src/nnue/nnue_accumulator.cpp b/src/nnue/nnue_accumulator.cpp
+index 16af8d5..cb81dfc 100644
+--- a/src/nnue/nnue_accumulator.cpp
++++ b/src/nnue/nnue_accumulator.cpp
+@@ -142,7 +142,7 @@ template<IndexType Dimensions>
+ void AccumulatorStack::evaluate(const Position&                       pos,
+                                 const FeatureTransformer<Dimensions>& featureTransformer,
+                                 AccumulatorCaches::Cache<Dimensions>& cache) noexcept {
+-    constexpr bool UseThreats = (Dimensions == TransformedFeatureDimensionsBig);
++    constexpr bool UseThreats = false;  // matches nnue_feature_transformer.h
+ 
+     evaluate_side<PSQFeatureSet>(WHITE, pos, featureTransformer, cache);
+ 
+@@ -283,10 +283,12 @@ template void AccumulatorStack::evaluate<TransformedFeatureDimensionsBig>(
+   const Position&                                            pos,
+   const FeatureTransformer<TransformedFeatureDimensionsBig>& featureTransformer,
+   AccumulatorCaches::Cache<TransformedFeatureDimensionsBig>& cache) noexcept;
++#if TransformedFeatureDimensionsSmall != TransformedFeatureDimensionsBig
+ template void AccumulatorStack::evaluate<TransformedFeatureDimensionsSmall>(
+   const Position&                                              pos,
+   const FeatureTransformer<TransformedFeatureDimensionsSmall>& featureTransformer,
+   AccumulatorCaches::Cache<TransformedFeatureDimensionsSmall>& cache) noexcept;
++#endif
+ 
+ 
+ namespace {
+diff --git a/src/nnue/nnue_architecture.h b/src/nnue/nnue_architecture.h
+index 71fce9b..6b0b867 100644
+--- a/src/nnue/nnue_architecture.h
++++ b/src/nnue/nnue_architecture.h
+@@ -39,8 +39,10 @@ namespace Stockfish::Eval::NNUE {
+ using ThreatFeatureSet = Features::FullThreats;
+ using PSQFeatureSet    = Features::HalfKAv2_hm;
+ 
+-// Number of input feature dimensions after conversion
+-constexpr IndexType TransformedFeatureDimensionsBig = 1024;
++// Number of input feature dimensions after conversion.
++// Both big and small use the same 128-feature network (nn-37f18f62d772.nnue)
++// so their architecture parameters must match to share the same NNUE hash.
++constexpr IndexType TransformedFeatureDimensionsBig = 128;
+ constexpr int       L2Big                           = 15;
+ constexpr int       L3Big                           = 32;
+ 
+diff --git a/src/nnue/nnue_feature_transformer.h b/src/nnue/nnue_feature_transformer.h
+index f4cf348..1220c7f 100644
+--- a/src/nnue/nnue_feature_transformer.h
++++ b/src/nnue/nnue_feature_transformer.h
+@@ -80,8 +80,9 @@ void permute(std::array<T, N>& data, const std::array<std::size_t, OrderSize>& o
+ // Input feature converter
+ template<IndexType TransformedFeatureDimensions>
+ class FeatureTransformer {
+-    static constexpr bool UseThreats =
+-      (TransformedFeatureDimensions == TransformedFeatureDimensionsBig);
++    // Both big and small use nn-37f18f62d772.nnue (the 128-feature HalfKAv2_hm
++    // network with no threat features), so threats are disabled for both.
++    static constexpr bool UseThreats = false;
+     // Number of output dimensions for one side
+     static constexpr IndexType HalfDimensions = TransformedFeatureDimensions;
+ 
+diff --git a/src/thread.cpp b/src/thread.cpp
+index 441af56..c6a0c18 100644
+--- a/src/thread.cpp
++++ b/src/thread.cpp
+@@ -326,15 +326,16 @@ void ThreadPool::start_thinking(const OptionsMap&  options,
+     // shared since they are read-only.
+     for (auto&& th : threads)
+     {
+-        th->run_custom_job([&]() {
+-            th->worker->limits = limits;
+-            th->worker->nodes = th->worker->tbHits = th->worker->bestMoveChanges = 0;
+-            th->worker->nmpMinPly                                                = 0;
+-            th->worker->rootDepth = th->worker->completedDepth = 0;
+-            th->worker->rootMoves                              = rootMoves;
+-            th->worker->rootPos.set(pos.fen(), pos.is_chess960(), &th->worker->rootState);
+-            th->worker->rootState = setupStates->back();
+-            th->worker->tbConfig  = tbConfig;
++        Thread* thread = th.get();
++        thread->run_custom_job([&, thread]() {
++            thread->worker->limits = limits;
++            thread->worker->nodes = thread->worker->tbHits = thread->worker->bestMoveChanges = 0;
++            thread->worker->nmpMinPly                                                = 0;
++            thread->worker->rootDepth = thread->worker->completedDepth = 0;
++            thread->worker->rootMoves                              = rootMoves;
++            thread->worker->rootPos.set(pos.fen(), pos.is_chess960(), &thread->worker->rootState);
++            thread->worker->rootState = setupStates->back();
++            thread->worker->tbConfig  = tbConfig;
+         });
+     }
+ 

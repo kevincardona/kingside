@@ -1,0 +1,191 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.6.3"
+
+jobs:
+  lint:
+    name: Lint GDScript
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Godot
+        run: |
+          base="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable"
+          curl -sSL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip && mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+      - name: Run gdlint
+        run: ./godot --headless --path . --script .claude/check_gdscript.sh || true
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Godot + templates
+        run: |
+          base="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable"
+          curl -sSL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip && mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          curl -sSL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          mkdir -p "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          unzip -q templates.tpz
+          mv templates/* "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/"
+      - name: Import project
+        run: ./godot --headless --path . --import || true
+      - name: Run puzzle tests
+        run: ./godot --headless --path . res://test_puzzles.tscn
+      - name: Run online logic tests
+        run: ./godot --headless --path . -s res://test_online_logic.gd
+      - name: Run ChessLogic tests
+        run: ./godot --headless --path . -s res://test_chesslogic.gd
+      - name: Run AI tests
+        run: ./godot --headless --path . -s res://test_ai.gd
+      - name: Run GameManager tests
+        run: ./godot --headless --path . -s res://test_gamemanager.gd
+      - name: Run PuzzleManager tests
+        run: ./godot --headless --path . -s res://test_puzzlemgr.gd
+
+  screenshot-test:
+    name: Screenshot Tour
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Godot + templates
+        run: |
+          base="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable"
+          curl -sSL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip && mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          curl -sSL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          mkdir -p "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          unzip -q templates.tpz
+          mv templates/* "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/"
+      - name: Import project
+        run: ./godot --headless --path . --import || true
+      - name: Run screenshot tour
+        run: |
+          mkdir -p screenshots
+          ./godot --headless --path . res://test_screens.tscn
+          ls -la /tmp/chess_shots/
+          cp /tmp/chess_shots/*.png screenshots/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: screenshots/
+          if-no-files-found: warn
+
+  build-native:
+    name: Build Native Libs
+    needs: [lint, test]
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { platform: linux,   arch: x86_64 }
+          - { platform: windows, arch: x86_64 }
+          - { platform: android, arch: arm64 }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y scons cmake build-essential
+          if [ "${{ matrix.platform }}" = "windows" ]; then
+            sudo apt-get install -y mingw-w64
+          fi
+      - name: Install Android NDK
+        if: matrix.platform == 'android'
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;28.1.13356709" >/dev/null
+          echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/28.1.13356709" >> "$GITHUB_ENV"
+      - name: Fetch pinned godot-cpp and patched Stockfish
+        run: |
+          cd gdextension
+          rm -rf godot-cpp stockfish
+          git clone --no-checkout https://github.com/godotengine/godot-cpp.git
+          git -C godot-cpp checkout "3a7edf0ea34fac0623ef3013d60362e9d01654d2"
+          git clone --no-checkout https://github.com/official-stockfish/Stockfish.git stockfish
+          git -C stockfish checkout "cb3d4ee9b47d0c5aae855b12379378ea1439675c"
+          git -C stockfish apply "$PWD/patches/stockfish-18-single-nnue.patch"
+          cp bin/nn-37f18f62d772.nnue stockfish/src/
+      - name: Build
+        run: ./gdextension/build_stockfish_extension.sh "${{ matrix.platform }}" "${{ matrix.arch }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lib-${{ matrix.platform }}-${{ matrix.arch }}
+          path: gdextension/bin/*chess_engine.${{ matrix.platform }}.*
+          if-no-files-found: error
+
+  export:
+    name: Export ${{ matrix.preset }}
+    needs: [lint, test, build-native]
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { preset: Linux,   out: Chess-linux/Chess.x86_64 }
+          - { preset: Windows, out: Chess-windows/Chess.exe }
+          - { preset: macOS,   out: Chess-macos/Chess.zip }
+          - { preset: Android, out: Chess-android/Chess.apk }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pull native libs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: lib-*
+          merge-multiple: true
+          path: gdextension/bin/
+      - name: Enable available libs in manifest
+        run: python3 tools/sync_gdextension_manifest.py
+      - name: Install Godot + templates
+        run: |
+          base="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable"
+          curl -sSL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip && mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          curl -sSL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          mkdir -p "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          unzip -q templates.tpz
+          mv templates/* "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/"
+      - name: Import project
+        run: ./godot --headless --path . --import || true
+      - name: Export
+        run: |
+          mkdir -p "dist/$(dirname '${{ matrix.out }}')"
+          ./godot --headless --path . --export-release "${{ matrix.preset }}" "$PWD/dist/${{ matrix.out }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chess-${{ matrix.preset }}
+          path: dist/
+          if-no-files-found: error
+
+  release:
+    name: Create Release
+    needs: [lint, test, screenshot-test, export]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: Chess-*
+          merge-multiple: true
+          path: dist/
+      - uses: actions/download-artifact@v4
+        with:
+          name: screenshots
+          path: screenshots/
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/**/*
+            screenshots/*.png
+          generate_release_notes: true
